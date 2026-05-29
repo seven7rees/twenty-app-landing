@@ -382,19 +382,39 @@
   </div>
 
   <script>
+    // Upgrade to frictionless server capture: set FORMSPREE_ID to your
+    // formspree.io form id (free, 2 min) and the fetch path activates automatically.
+    const FORMSPREE_ID = '';
+
     function handleSubmit(e) {
       e.preventDefault();
       const email = document.getElementById('email-input').value;
       if (!email) return;
 
-      // In production: POST to your email capture endpoint (Mailchimp, ConvertKit, etc.)
-      // For validation: just show success state
+      // Local backup of every lead
+      try {
+        const k = 'cp_waitlist';
+        const a = JSON.parse(localStorage.getItem(k) || '[]');
+        a.push({ email, ts: Date.now() });
+        localStorage.setItem(k, JSON.stringify(a));
+      } catch (_) {}
+
+      // Deliver the lead. Frictionless if Formspree wired; mailto fallback otherwise.
+      if (FORMSPREE_ID) {
+        fetch('https://formspree.io/f/' + FORMSPREE_ID, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ email, app: 'cold-plunge' }),
+        }).catch(() => {});
+      } else {
+        const subj = encodeURIComponent('Cold Plunge — Early Access');
+        const body = encodeURIComponent('Add me to the Cold Plunge early access list: ' + email);
+        window.location.href = 'mailto:patrickdavis7@gmail.com?subject=' + subj + '&body=' + body;
+      }
+
       document.getElementById('email-form').style.display = 'none';
       document.querySelector('.form-note').style.display = 'none';
       document.getElementById('form-success').style.display = 'block';
-
-      // Optional: send to backend
-      // fetch('/api/waitlist', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email, app: 'cold-plunge' }) });
     }
   </script>
 </body>

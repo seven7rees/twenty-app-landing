@@ -535,14 +535,34 @@
   </div>
 
   <script>
+    // Upgrade to frictionless server capture: set FORMSPREE_ID to your
+    // formspree.io form id (free, 2 min) and the fetch path activates automatically.
+    const FORMSPREE_ID = '';
+
     function handleSubmit(e, id) {
       e.preventDefault();
       const emailInput = document.getElementById('email-' + id);
       const email = emailInput ? emailInput.value : '';
       if (!email) return;
 
-      // In production: POST to email capture endpoint
-      // fetch('/api/waitlist', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email, app: 'bill-of-sale' }) });
+      try {
+        const k = 'bos_waitlist';
+        const a = JSON.parse(localStorage.getItem(k) || '[]');
+        a.push({ email, ts: Date.now() });
+        localStorage.setItem(k, JSON.stringify(a));
+      } catch (_) {}
+
+      if (FORMSPREE_ID) {
+        fetch('https://formspree.io/f/' + FORMSPREE_ID, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ email, app: 'bill-of-sale' }),
+        }).catch(() => {});
+      } else {
+        const subj = encodeURIComponent('Bill of Sale — Early Access');
+        const body = encodeURIComponent('Add me to the Bill of Sale early access list: ' + email);
+        window.location.href = 'mailto:patrickdavis7@gmail.com?subject=' + subj + '&body=' + body;
+      }
 
       if (id === '1') {
         document.getElementById('email-form-1').style.display = 'none';

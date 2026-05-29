@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Supplement Scanner — Coming Soon</title>
+  <meta name="description" content="Point your camera at a supplement label. Get the real mechanism, clinical dose adequacy, and quality red flags. Launching soon on iOS." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Supplement Scanner — Real Mechanism, Real Dose" />
+  <meta property="og:description" content="Scan a label. Get the clinical dose, the actual form, and the quality red flags. Launching soon on iOS." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://twentystack.substack.com" />
+  <meta property="og:image" content="https://via.placeholder.com/1200x630/080603/D4890F?text=Supplement+Scanner" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Supplement Scanner — Real Mechanism, Real Dose" />
+  <meta name="twitter:description" content="Scan a label. Get the clinical dose, the actual form, and the quality red flags. Launching soon on iOS." />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080603;
+      --amber: #D4890F;
+      --text: #F5F5F0;
+      --muted: rgba(245, 245, 240, 0.45);
+      --surface: rgba(245, 245, 240, 0.05);
+      --border: rgba(245, 245, 240, 0.08);
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      font-size: clamp(28px, 7vw, 40px);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    h1 span { color: var(--amber); }
+
+    .sub {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin-bottom: 40px;
+    }
+
+    .form-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 48px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    input[type="email"] {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="email"]::placeholder { color: var(--muted); }
+    input[type="email"]:focus { border-color: var(--amber); }
+
+    button[type="submit"] {
+      background: var(--amber);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      padding: 14px 22px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+
+    button[type="submit"]:hover { opacity: 0.88; }
+
+    .form-note {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .form-success {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 14px;
+      color: var(--amber);
+      text-align: center;
+    }
+
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 40px;
+    }
+
+    /* Label mock */
+    .label-mock {
+      margin-bottom: 48px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .label-mock-header {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .label-row:last-child { border-bottom: none; }
+
+    .label-ingredient {
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .label-flag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .flag-red {
+      background: rgba(220, 60, 60, 0.15);
+      color: #e05555;
+    }
+
+    .flag-amber {
+      background: rgba(212, 137, 15, 0.15);
+      color: var(--amber);
+    }
+
+    .flag-ok {
+      background: rgba(80, 180, 100, 0.12);
+      color: #5db870;
+    }
+
+    .scan-line {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scan-line::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--amber);
+      opacity: 0.5;
+      top: 0;
+      animation: scanDown 2.8s ease-in-out infinite;
+    }
+
+    @keyframes scanDown {
+      0%   { top: 0%; opacity: 0; }
+      10%  { opacity: 0.5; }
+      90%  { opacity: 0.5; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 56px;
+    }
+
+    .feature {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .feature-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+    }
+
+    .feature-text strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .feature-text p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .footer-brand {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+
+    footer p {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    footer a:hover { color: var(--amber); }
+
+    @media (max-width: 400px) {
+      .form-row { flex-direction: column; }
+      button[type="submit"] { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <p class="tag">coming soon — ios</p>
+
+    <h1>your supplement label<br>is <span>hiding the dose.</span></h1>
+
+    <p class="sub">
+      scan it. get the real mechanism, the clinical dose, and the quality red flags.<br>
+      launching on the app store.
+    </p>
+
+    <!-- Email form -->
+    <div class="form-wrap" id="form-wrap">
+      <form class="form-row" id="email-form" onsubmit="handleSubmit(event)">
+        <input
+          type="email"
+          id="email-input"
+          placeholder="your@email.com"
+          required
+          autocomplete="email"
+        />
+        <button type="submit">get early access</button>
+      </form>
+      <p class="form-note">early access list. no spam. one email when it launches.</p>
+      <div class="form-success" id="form-success">
+        you're on the list. we'll let you know when it drops.
+      </div>
+    </div>
+
+    <!-- Animated label mock -->
+    <div class="label-mock">
+      <p class="label-mock-header">scan result — magnesium complex 500mg</p>
+      <div class="scan-line">
+        <div class="label-row">
+          <span class="label-ingredient">magnesium oxide 400mg</span>
+          <span class="label-flag flag-red">wrong form</span>
+        </div>
+        <div class="label-row">
+          <span class="label-ingredient">magnesium glycinate 100mg</span>
+          <span class="label-flag flag-ok">bioavailable</span>
+        </div>
+        <div class="label-row">
+          <span class="label-ingredient">proprietary blend 150mg</span>
+          <span class="label-flag flag-amber">dose hidden</span>
+        </div>
+        <div class="label-row">
+          <span class="label-ingredient">lion's mane (mycelium)</span>
+          <span class="label-flag flag-red">grain-based</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Feature bullets -->
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">01</div>
+        <div class="feature-text">
+          <strong>magnesium glycinate vs oxide — the form determines absorption</strong>
+          <p>oxide is 4% bioavailable. glycinate is 80%. the label lists both. we flag the cheap one and tell you which dose is actually reaching your cells.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">02</div>
+        <div class="feature-text">
+          <strong>proprietary blends hide per-ingredient dose</strong>
+          <p>a 300mg blend with 12 ingredients is statistical noise. we estimate per-ingredient exposure against clinical study thresholds and flag what's underdosed.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">03</div>
+        <div class="feature-text">
+          <strong>lion's mane on grain is mostly starch</strong>
+          <p>mycelium-on-grain products contain primarily grain substrate, not beta-glucan. we check for fruiting body sourcing and verified beta-glucan content by weight.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p class="footer-brand">twenty stack</p>
+      <p>part of the TWENTY biological optimization suite</p>
+      <p><a href="https://twentystack.substack.com" target="_blank" rel="noopener">twentystack.substack.com</a></p>
+    </footer>
+
+  </div>
+
+  <script>
+    // Upgrade to frictionless server capture: set FORMSPREE_ID to your
+    // formspree.io form id (free, 2 min) and the fetch path activates automatically.
+    const FORMSPREE_ID = '';
+
+    function handleSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('email-input').value;
+      if (!email) return;
+
+      // Local backup of every lead
+      try {
+        const k = 'supp_waitlist';
+        const a = JSON.parse(localStorage.getItem(k) || '[]');
+        a.push({ email, ts: Date.now() });
+        localStorage.setItem(k, JSON.stringify(a));
+      } catch (_) {}
+
+      // Deliver the lead. Frictionless if Formspree wired; mailto fallback otherwise.
+      if (FORMSPREE_ID) {
+        fetch('https://formspree.io/f/' + FORMSPREE_ID, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ email, app: 'supplement-scanner' }),
+        }).catch(() => {});
+      } else {
+        const subj = encodeURIComponent('Supplement Scanner — Early Access');
+        const body = encodeURIComponent('Add me to the Supplement Scanner early access list: ' + email);
+        window.location.href = 'mailto:patrickdavis7@gmail.com?subject=' + subj + '&body=' + body;
+      }
+
+      document.getElementById('email-form').style.display = 'none';
+      document.querySelector('.form-note').style.display = 'none';
+      document.getElementById('form-success').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sauna Protocol Timer — Coming Soon</title>
+  <meta name="description" content="Protocol presets. Heat-shock response window. Contrast-therapy pairing with cold. The first sauna timer built around the actual biology. Launching soon on iOS." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Sauna Protocol Timer — HSP Response, Contrast Therapy" />
+  <meta property="og:description" content="Protocol presets. Heat-shock response window. Contrast-therapy pairing. Launching soon on iOS." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://twentystack.substack.com" />
+  <meta property="og:image" content="https://via.placeholder.com/1200x630/080603/D4890F?text=Sauna+Protocol+Timer" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sauna Protocol Timer — HSP Response, Contrast Therapy" />
+  <meta name="twitter:description" content="Protocol presets. Heat-shock response window. Contrast-therapy pairing. Launching soon on iOS." />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080603;
+      --amber: #D4890F;
+      --text: #F5F5F0;
+      --muted: rgba(245, 245, 240, 0.45);
+      --surface: rgba(245, 245, 240, 0.05);
+      --border: rgba(245, 245, 240, 0.08);
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      font-size: clamp(28px, 7vw, 40px);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    h1 span { color: var(--amber); }
+
+    .sub {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin-bottom: 40px;
+    }
+
+    .form-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 48px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    input[type="email"] {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="email"]::placeholder { color: var(--muted); }
+    input[type="email"]:focus { border-color: var(--amber); }
+
+    button[type="submit"] {
+      background: var(--amber);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      padding: 14px 22px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+
+    button[type="submit"]:hover { opacity: 0.88; }
+
+    .form-note {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .form-success {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 14px;
+      color: var(--amber);
+      text-align: center;
+    }
+
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 40px;
+    }
+
+    /* Heat curve */
+    .curve-wrap {
+      margin-bottom: 48px;
+    }
+
+    .curve-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    svg.curve {
+      width: 100%;
+      height: 80px;
+      overflow: visible;
+    }
+
+    .curve-path-hsp {
+      fill: none;
+      stroke: var(--amber);
+      stroke-width: 2;
+      stroke-dasharray: 420;
+      stroke-dashoffset: 420;
+      animation: drawLine 2.6s ease-out 0.5s forwards;
+    }
+
+    .curve-path-cv {
+      fill: none;
+      stroke: rgba(245, 245, 240, 0.35);
+      stroke-width: 1.5;
+      stroke-dasharray: 420;
+      stroke-dashoffset: 420;
+      animation: drawLine 2.6s ease-out 0.9s forwards;
+    }
+
+    .threshold-line {
+      stroke: rgba(212, 137, 15, 0.3);
+      stroke-width: 1;
+      stroke-dasharray: 5 4;
+    }
+
+    @keyframes drawLine {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .curve-legend {
+      display: flex;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      width: 24px;
+      height: 2px;
+      border-radius: 1px;
+    }
+
+    /* Temp badge */
+    .temp-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      color: var(--amber);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 40px;
+    }
+
+    .temp-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--amber);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 56px;
+    }
+
+    .feature {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .feature-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+    }
+
+    .feature-text strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .feature-text p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .footer-brand {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+
+    footer p {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    footer a:hover { color: var(--amber); }
+
+    @media (max-width: 400px) {
+      .form-row { flex-direction: column; }
+      button[type="submit"] { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <p class="tag">coming soon — ios</p>
+
+    <h1>your sauna timer doesn't know<br>what <span>heat shock proteins</span> are.</h1>
+
+    <p class="sub">
+      protocol presets. heat-shock response window. contrast-therapy pairing with cold.<br>
+      launching on the app store.
+    </p>
+
+    <!-- Email form -->
+    <div class="form-wrap" id="form-wrap">
+      <form class="form-row" id="email-form" onsubmit="handleSubmit(event)">
+        <input
+          type="email"
+          id="email-input"
+          placeholder="your@email.com"
+          required
+          autocomplete="email"
+        />
+        <button type="submit">get early access</button>
+      </form>
+      <p class="form-note">early access list. no spam. one email when it launches.</p>
+      <div class="form-success" id="form-success">
+        you're on the list. we'll let you know when it drops.
+      </div>
+    </div>
+
+    <!-- HSP threshold badge -->
+    <div class="temp-badge">
+      <div class="temp-badge-dot"></div>
+      HSP induction threshold — 174°F / 78°C
+    </div>
+
+    <!-- Heat-shock protein curve -->
+    <div class="curve-wrap">
+      <p class="curve-label">HSP70 induction vs cardiovascular load — 20 min session</p>
+      <svg class="curve" viewBox="0 0 340 80" preserveAspectRatio="none">
+        <!-- Threshold line at 174°F -->
+        <line class="threshold-line" x1="85" y1="0" x2="85" y2="80" />
+        <!-- HSP curve: slow ramp, accelerates after threshold -->
+        <path class="curve-path-hsp"
+          d="M 0,75 C 40,74 70,70 90,55 C 115,36 145,20 185,14 C 230,10 290,12 340,13"
+        />
+        <!-- CV load: linear rise from the start -->
+        <path class="curve-path-cv"
+          d="M 0,75 C 60,65 120,48 180,36 C 240,26 295,22 340,20"
+        />
+      </svg>
+      <div class="curve-legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #D4890F;"></div>
+          HSP70 induction
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: rgba(245,245,240,0.35);"></div>
+          cardiovascular load
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Feature bullets -->
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">01</div>
+        <div class="feature-text">
+          <strong>HSP70 induction begins at 174°F — below that you're just sweating</strong>
+          <p>heat shock protein expression requires core temperature elevation above threshold. the app tracks your session against the published induction window, not just elapsed time.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">02</div>
+        <div class="feature-text">
+          <strong>cardiovascular load equivalent to moderate aerobic exercise</strong>
+          <p>heart rate in the sauna reaches 100-150 bpm within 10-15 minutes. the protocol tracks your estimated cardiac output relative to your resting baseline and flags overload.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">03</div>
+        <div class="feature-text">
+          <strong>contrast timing with cold is not arbitrary — the window matters</strong>
+          <p>cold exposure within 5-10 minutes of sauna exit maximizes vasoconstriction contrast and norepinephrine spike. too long a gap and the cardiovascular effect flattens. we time the transition.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p class="footer-brand">twenty stack</p>
+      <p>part of the TWENTY biological optimization suite</p>
+      <p><a href="https://twentystack.substack.com" target="_blank" rel="noopener">twentystack.substack.com</a></p>
+    </footer>
+
+  </div>
+
+  <script>
+    // Upgrade to frictionless server capture: set FORMSPREE_ID to your
+    // formspree.io form id (free, 2 min) and the fetch path activates automatically.
+    const FORMSPREE_ID = '';
+
+    function handleSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('email-input').value;
+      if (!email) return;
+
+      // Local backup of every lead
+      try {
+        const k = 'sauna_waitlist';
+        const a = JSON.parse(localStorage.getItem(k) || '[]');
+        a.push({ email, ts: Date.now() });
+        localStorage.setItem(k, JSON.stringify(a));
+      } catch (_) {}
+
+      // Deliver the lead. Frictionless if Formspree wired; mailto fallback otherwise.
+      if (FORMSPREE_ID) {
+        fetch('https://formspree.io/f/' + FORMSPREE_ID, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ email, app: 'sauna-timer' }),
+        }).catch(() => {});
+      } else {
+        const subj = encodeURIComponent('Sauna Protocol — Early Access');
+        const body = encodeURIComponent('Add me to the Sauna Protocol early access list: ' + email);
+        window.location.href = 'mailto:patrickdavis7@gmail.com?subject=' + subj + '&body=' + body;
+      }
+
+      document.getElementById('email-form').style.display = 'none';
+      document.querySelector('.form-note').style.display = 'none';
+      document.getElementById('form-success').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stack Tracker — Coming Soon</title>
+  <meta name="description" content="Log your full supplement, peptide, and nootropic stack. Timing, dose, cycles. Interaction and timing-conflict flags. Launching soon on iOS." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Stack Tracker — Log the Stack, Flag the Conflicts" />
+  <meta property="og:description" content="Timing, dose, cycles. Interaction and timing-conflict flags. Launching soon on iOS." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://twentystack.substack.com" />
+  <meta property="og:image" content="https://via.placeholder.com/1200x630/080603/D4890F?text=Stack+Tracker" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Stack Tracker — Log the Stack, Flag the Conflicts" />
+  <meta name="twitter:description" content="Timing, dose, cycles. Interaction and timing-conflict flags. Launching soon on iOS." />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080603;
+      --amber: #D4890F;
+      --text: #F5F5F0;
+      --muted: rgba(245, 245, 240, 0.45);
+      --surface: rgba(245, 245, 240, 0.05);
+      --border: rgba(245, 245, 240, 0.08);
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      font-size: clamp(28px, 7vw, 40px);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    h1 span { color: var(--amber); }
+
+    .sub {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin-bottom: 40px;
+    }
+
+    .form-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 48px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    input[type="email"] {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="email"]::placeholder { color: var(--muted); }
+    input[type="email"]:focus { border-color: var(--amber); }
+
+    button[type="submit"] {
+      background: var(--amber);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      padding: 14px 22px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+
+    button[type="submit"]:hover { opacity: 0.88; }
+
+    .form-note {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .form-success {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 14px;
+      color: var(--amber);
+      text-align: center;
+    }
+
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 40px;
+    }
+
+    /* Stack mock */
+    .stack-mock {
+      margin-bottom: 48px;
+    }
+
+    .stack-mock-header {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .stack-entry {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stack-entry:last-child { border-bottom: none; }
+
+    .stack-time {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--amber);
+      min-width: 44px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stack-name {
+      flex: 1;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .stack-dose {
+      font-size: 12px;
+      color: var(--muted);
+      min-width: 56px;
+      text-align: right;
+    }
+
+    .conflict-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      background: rgba(220, 60, 60, 0.15);
+      color: #e05555;
+    }
+
+    .warn-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      background: rgba(212, 137, 15, 0.15);
+      color: var(--amber);
+    }
+
+    /* Conflict callout */
+    .conflict-callout {
+      margin-top: 12px;
+      background: rgba(220, 60, 60, 0.07);
+      border: 1px solid rgba(220, 60, 60, 0.18);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 12px;
+      color: rgba(245, 245, 240, 0.7);
+      line-height: 1.55;
+      opacity: 0;
+      animation: fadeIn 0.4s ease-out 2s forwards;
+    }
+
+    .conflict-callout strong {
+      color: #e05555;
+      font-weight: 600;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 56px;
+    }
+
+    .feature {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .feature-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+    }
+
+    .feature-text strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .feature-text p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .footer-brand {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+
+    footer p {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    footer a:hover { color: var(--amber); }
+
+    @media (max-width: 400px) {
+      .form-row { flex-direction: column; }
+      button[type="submit"] { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <p class="tag">coming soon — ios</p>
+
+    <h1>you're running <span>eight compounds</span><br>and tracking none of them.</h1>
+
+    <p class="sub">
+      log the stack. timing, dose, cycles.<br>
+      interaction and timing-conflict flags.<br>
+      launching on the app store.
+    </p>
+
+    <!-- Email form -->
+    <div class="form-wrap" id="form-wrap">
+      <form class="form-row" id="email-form" onsubmit="handleSubmit(event)">
+        <input
+          type="email"
+          id="email-input"
+          placeholder="your@email.com"
+          required
+          autocomplete="email"
+        />
+        <button type="submit">get early access</button>
+      </form>
+      <p class="form-note">early access list. no spam. one email when it launches.</p>
+      <div class="form-success" id="form-success">
+        you're on the list. we'll let you know when it drops.
+      </div>
+    </div>
+
+    <!-- Stack mock -->
+    <div class="stack-mock">
+      <p class="stack-mock-header">today's stack — 8 compounds logged</p>
+
+      <div class="stack-entry">
+        <span class="stack-time">06:00</span>
+        <span class="stack-name">armodafinil</span>
+        <span class="stack-dose">150 mg</span>
+      </div>
+      <div class="stack-entry">
+        <span class="stack-time">06:00</span>
+        <span class="stack-name">citicoline</span>
+        <span class="stack-dose">300 mg</span>
+      </div>
+      <div class="stack-entry">
+        <span class="stack-time">06:30</span>
+        <span class="stack-name">caffeine</span>
+        <span class="stack-dose">200 mg</span>
+        <span class="warn-badge">timing</span>
+      </div>
+      <div class="stack-entry">
+        <span class="stack-time">06:30</span>
+        <span class="stack-name">magnesium glycinate</span>
+        <span class="stack-dose">400 mg</span>
+        <span class="conflict-badge">conflict</span>
+      </div>
+      <div class="stack-entry">
+        <span class="stack-time">12:00</span>
+        <span class="stack-name">alpha-GPC</span>
+        <span class="stack-dose">300 mg</span>
+      </div>
+      <div class="stack-entry">
+        <span class="stack-time">12:00</span>
+        <span class="stack-name">aniracetam</span>
+        <span class="stack-dose">750 mg</span>
+      </div>
+      <div class="stack-entry">
+        <span class="stack-time">21:00</span>
+        <span class="stack-name">magnesium L-threonate</span>
+        <span class="stack-dose">2000 mg</span>
+      </div>
+      <div class="stack-entry">
+        <span class="stack-time">21:00</span>
+        <span class="stack-name">apigenin</span>
+        <span class="stack-dose">50 mg</span>
+      </div>
+
+      <div class="conflict-callout">
+        <strong>timing conflict detected:</strong> magnesium competes with caffeine for intestinal absorption at the divalent cation transporter. separate by 90+ minutes for full bioavailability of both.
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Feature bullets -->
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">01</div>
+        <div class="feature-text">
+          <strong>timing conflicts flag at the transporter level, not the category level</strong>
+          <p>magnesium and caffeine share the divalent cation transporter. stacking two wakefulness agents saturates the dopaminergic pathway. these conflicts are invisible without logging both timing and mechanism.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">02</div>
+        <div class="feature-text">
+          <strong>cycle tracking prevents receptor downregulation you can't feel until it's done</strong>
+          <p>armodafinil tolerance builds at the orexin receptor level across 4-6 weeks of daily use. the app tracks your cycle length, flags when you're approaching the tolerance window, and prompts a break before your baseline degrades.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">03</div>
+        <div class="feature-text">
+          <strong>stack combos compound the effect — but only if the timing is right</strong>
+          <p>citicoline with any racetam is the canonical pairing for acetylcholine substrate + receptor upregulation. the combination requires the right dose ratio and timing window. we model the interaction, not just list the names.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p class="footer-brand">twenty stack</p>
+      <p>part of the TWENTY biological optimization suite</p>
+      <p><a href="https://twentystack.substack.com" target="_blank" rel="noopener">twentystack.substack.com</a></p>
+    </footer>
+
+  </div>
+
+  <script>
+    // Upgrade to frictionless server capture: set FORMSPREE_ID to your
+    // formspree.io form id (free, 2 min) and the fetch path activates automatically.
+    const FORMSPREE_ID = '';
+
+    function handleSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('email-input').value;
+      if (!email) return;
+
+      // Local backup of every lead
+      try {
+        const k = 'stack_waitlist';
+        const a = JSON.parse(localStorage.getItem(k) || '[]');
+        a.push({ email, ts: Date.now() });
+        localStorage.setItem(k, JSON.stringify(a));
+      } catch (_) {}
+
+      // Deliver the lead. Frictionless if Formspree wired; mailto fallback otherwise.
+      if (FORMSPREE_ID) {
+        fetch('https://formspree.io/f/' + FORMSPREE_ID, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ email, app: 'stack-tracker' }),
+        }).catch(() => {});
+      } else {
+        const subj = encodeURIComponent('Stack Tracker — Early Access');
+        const body = encodeURIComponent('Add me to the Stack Tracker early access list: ' + email);
+        window.location.href = 'mailto:patrickdavis7@gmail.com?subject=' + subj + '&body=' + body;
+      }
+
+      document.getElementById('email-form').style.display = 'none';
+      document.querySelector('.form-note').style.display = 'none';
+      document.getElementById('form-success').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
